@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Heart, User, Mail, Lock, ShieldCheck, UserX, ArrowRight, AlertCircle, Phone, MapPin, Eye, EyeOff, Users } from 'lucide-react';
 import axios from 'axios';
+import API_URL from '../api/config';
 import { useDonations } from '../context/DonationContext';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
@@ -62,7 +63,7 @@ const Register = () => {
     if (validateForm()) {
       setIsSubmitting(true);
       try {
-        await axios.post('http://localhost:5000/api/auth/register', {
+        await axios.post(`${API_URL}/api/auth/register`, {
           name: formData.fullName,
           email: formData.email,
           password: formData.password,
@@ -85,7 +86,7 @@ const Register = () => {
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const decoded = jwtDecode(credentialResponse.credential);
-      const res = await axios.post('http://localhost:5000/api/auth/google', {
+      const res = await axios.post(`${API_URL}/api/auth/google`, {
         token: credentialResponse.credential,
         email: decoded.email,
         name: decoded.name
@@ -106,7 +107,7 @@ const Register = () => {
 
   const handleAnonymousLogin = async () => {
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/anonymous');
+      const res = await axios.post(`${API_URL}/api/auth/anonymous`);
       login(res.data.user, res.data.token);
       navigate('/donor-dashboard');
     } catch (err) {

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { Heart, Mail, Lock, ShieldCheck, UserX, ArrowRight, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
+import API_URL from '../api/config';
 import { useDonations } from '../context/DonationContext';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
@@ -54,7 +55,7 @@ const Login = () => {
     if (validateForm()) {
       setIsSubmitting(true);
       try {
-        const res = await axios.post('http://localhost:5000/api/auth/login', {
+        const res = await axios.post(`${API_URL}/api/auth/login`, {
           email: formData.email,
           password: formData.password
         });
@@ -79,7 +80,7 @@ const Login = () => {
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const decoded = jwtDecode(credentialResponse.credential);
-      const res = await axios.post('http://localhost:5000/api/auth/google', {
+      const res = await axios.post(`${API_URL}/api/auth/google`, {
         token: credentialResponse.credential,
         email: decoded.email,
         name: decoded.name
@@ -100,7 +101,7 @@ const Login = () => {
 
   const handleAnonymousLogin = async () => {
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/anonymous');
+      const res = await axios.post(`${API_URL}/api/auth/anonymous`);
       login(res.data.user, res.data.token);
       navigate('/donor-dashboard');
     } catch (err) {
@@ -340,7 +341,7 @@ const Login = () => {
                       if (!forgotEmail) return;
                       setIsForgotLoading(true);
                       try {
-                        const res = await axios.post('http://localhost:5000/api/auth/forgot-password', { email: forgotEmail });
+                        const res = await axios.post(`${API_URL}/api/auth/forgot-password`, { email: forgotEmail });
                         setForgotMsg(res.data.message);
                       } catch (err) {
                         alert(err.response?.data?.error || 'Error sending reset email');

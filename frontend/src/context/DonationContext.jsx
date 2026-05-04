@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
+import API_URL from '../api/config';
 
-const socket = io('http://localhost:5000');
+const socket = io(API_URL);
 
 // ── Context ──────────────────────────────────────────────────────────────────
 const DonationContext = createContext(null);
@@ -96,7 +97,7 @@ export const DonationProvider = ({ children }) => {
     const dName  = isAnon ? '' : (localStorage.getItem('supply_sense_name') || 'Registered Donor');
     try {
       const params = isAnon ? { isAnonymous: 'true' } : { donorName: dName };
-      const { data } = await axios.get('http://localhost:5000/api/my-donations', { params });
+      const { data } = await axios.get(`${API_URL}/api/my-donations`, { params });
       dispatch({ type: 'SET_DONATIONS', payload: data });
       localStorage.setItem('supply_sense_my_donations', JSON.stringify(data));
     } catch {
@@ -115,7 +116,7 @@ export const DonationProvider = ({ children }) => {
 
   const removeDonation = useCallback(async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/donations/${id}`);
+      await axios.delete(`${API_URL}/api/donations/${id}`);
     } catch (e) { /* if not supported, still remove from local state */ }
     dispatch({ type: 'REMOVE_DONATION', payload: id });
     const cached = JSON.parse(localStorage.getItem('supply_sense_my_donations') || '[]');

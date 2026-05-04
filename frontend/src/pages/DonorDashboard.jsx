@@ -8,6 +8,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { io } from 'socket.io-client';
+import API_URL from '../api/config';
 import { useDonations } from '../context/DonationContext';
 import ChatModal from '../components/ChatModal';
 import TrackingMap from '../components/TrackingMap';
@@ -70,7 +71,7 @@ const DonorDashboard = () => {
     fetchChats();
 
     // Listen for real-time chat updates
-    const socket = io('http://localhost:5000');
+    const socket = io(API_URL);
     socket.on('chat-update', () => {
       fetchChats();
     });
@@ -105,7 +106,7 @@ const DonorDashboard = () => {
 
   const fetchChats = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/chats');
+      const res = await axios.get(`${API_URL}/api/chats`);
       setActiveChats(res.data);
     } catch (e) { console.error(e); }
   };
@@ -114,7 +115,7 @@ const DonorDashboard = () => {
     setNgoLoading(true);
     try {
       const cityQuery = cityToSearch !== null ? cityToSearch : ngoSearchCity;
-      const res = await axios.get(`http://localhost:5000/api/ngos/nearby?${cityQuery ? 'city=' + cityQuery : ''}`);
+      const res = await axios.get(`${API_URL}/api/ngos/nearby?${cityQuery ? 'city=' + cityQuery : ''}`);
       setNearbyNGOs(res.data);
     } catch (e) { console.error(e); }
     finally { setNgoLoading(false); }
@@ -122,7 +123,7 @@ const DonorDashboard = () => {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/user/profile');
+      const res = await axios.get(`${API_URL}/api/user/profile`);
       setProfileData({
         name: res.data.name || '',
         phone: res.data.phone || '',
@@ -139,7 +140,7 @@ const DonorDashboard = () => {
     e.preventDefault();
     setIsUpdatingProfile(true);
     try {
-      await axios.post('http://localhost:5000/api/user/profile', profileData);
+      await axios.post(`${API_URL}/api/user/profile`, profileData);
       localStorage.setItem('supply_sense_name', profileData.name);
       localStorage.setItem('supply_sense_city', profileData.city);
       alert('Profile updated successfully!');
@@ -177,7 +178,7 @@ const DonorDashboard = () => {
       if (coords.lat) payload.append('lat', coords.lat);
       if (coords.lng) payload.append('lng', coords.lng);
 
-      await axios.post('http://localhost:5000/api/donations', payload, {
+      await axios.post(`${API_URL}/api/donations`, payload, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
@@ -458,7 +459,7 @@ const DonorDashboard = () => {
                                   onClick={async () => {
                                     if(confirm('Mark this donation as delivered? This will generate your certificate.')) {
                                       try {
-                                        await axios.post(`http://localhost:5000/api/donations/${d.id}/confirm`, { status: 'Delivered' }, {
+                                        await axios.post(`${API_URL}/api/donations/${d.id}/confirm`, { status: 'Delivered' }, {
                                           headers: { Authorization: `Bearer ${localStorage.getItem('supply_sense_token')}` }
                                         });
                                         fetchMyDonations();
