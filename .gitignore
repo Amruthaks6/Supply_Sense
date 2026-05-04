@@ -1,0 +1,15 @@
+node_modules/
+.env
+.DS_Store
+dist/
+build/
+*.log
+scratch/
+test_db.js
+debug_register.js
+debug_register_ngo.js
+backend/register.json
+backend/debug_register.js
+backend/debug_register_ngo.js
+backend/uploads/*
+!backend/uploads/.gitkeep
