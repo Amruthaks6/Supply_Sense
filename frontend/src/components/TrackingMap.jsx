@@ -108,7 +108,7 @@ const TrackingMap = ({ donationId, initialLat, initialLng, ngoLat, ngoLng, isDon
           (err) => {
             console.error(err);
             setIsTracking(false);
-            alert("Location access denied or unavailable.");
+            alert("Location access denied! Please click the padlock icon in your browser's address bar (next to the URL) and ALLOW Location access to use Live Tracking.");
           },
           { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
         );
