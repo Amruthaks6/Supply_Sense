@@ -2,8 +2,7 @@
 --  SUPPLY SENSE - MASTER DATABASE SETUP
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS supply_sense_db;
-USE supply_sense_db;
+
 
 -- 1. Users Table
 CREATE TABLE IF NOT EXISTS users (
