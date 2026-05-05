@@ -309,20 +309,23 @@ app.get('/api/my-donations', authenticateToken, async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.post('/api/donations', authenticateToken, authorizeRole('Donor'), multer({ storage: multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-})}).fields([{ name: 'image' }, { name: 'proofPhoto' }]), async (req, res) => {
+app.post('/api/donations', authenticateToken, authorizeRole('Donor'), multer({ storage: multer.memoryStorage() }).fields([{ name: 'image' }, { name: 'proofPhoto' }]), async (req, res) => {
     const { foodName, category, availableServings, quantityUnit, expiryDate, pickupLocation, isAnonymous, lat, lng, city, phone } = req.body;
     const donorName = req.user.isAnonymous ? 'Anonymous Donor' : req.user.name;
     const donorPhone = phone || (req.user.isAnonymous ? null : req.user.phone);
     const userId = req.user.id;
 
-    const BASE_URL = process.env.BASE_URL || 'https://supply-sense-backend.onrender.com';
+    // Convert uploaded files to base64 data URLs (works on Render - no filesystem needed)
     let imageUrl = 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=600';
     let proofPhotoUrl = null;
-    if (req.files?.image) imageUrl = `${BASE_URL}/uploads/${req.files.image[0].filename}`;
-    if (req.files?.proofPhoto) proofPhotoUrl = `${BASE_URL}/uploads/${req.files.proofPhoto[0].filename}`;
+    if (req.files?.image?.[0]) {
+        const f = req.files.image[0];
+        imageUrl = `data:${f.mimetype};base64,${f.buffer.toString('base64')}`;
+    }
+    if (req.files?.proofPhoto?.[0]) {
+        const f = req.files.proofPhoto[0];
+        proofPhotoUrl = `data:${f.mimetype};base64,${f.buffer.toString('base64')}`;
+    }
 
     try {
         const [result] = await pool.query(`INSERT INTO donations (foodName, category, availableServings, totalQuantity, remainingQuantity, quantityUnit, expiryDate, imageUrl, proofPhotoUrl, pickupLocation, currentLat, currentLng, donorName, donorPhone, isAnonymous, status, acceptedBy, userId, city) 
