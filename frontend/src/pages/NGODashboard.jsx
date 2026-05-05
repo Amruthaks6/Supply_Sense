@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import API_URL from '../api/config';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShieldCheck, LogOut, Search, Map, CheckCircle2, 
@@ -11,7 +13,7 @@ import { io } from 'socket.io-client';
 import ChatModal from '../components/ChatModal';
 import NotificationBell from '../components/NotificationBell';
 
-const socket = io('http://localhost:5000');
+const socket = io(`${API_URL}`);
 
 const NGODashboard = () => {
   const navigate = useNavigate();
@@ -55,7 +57,7 @@ const NGODashboard = () => {
 
   const fetchChats = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/chats');
+      const res = await axios.get(`${API_URL}/api/chats`);
       setActiveChats(res.data);
     } catch (e) { console.error(e); }
   };
@@ -65,9 +67,9 @@ const NGODashboard = () => {
     const currentTab = tabOverride || activeTab;
     try {
       const [donationsRes, managedRes, profileRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/ngo/donations?ngoName=${profile.ngoName || ngoName}${currentTab === 'sameCity' ? '&sameCity=true&city=' + city : ''}`),
-        axios.get(`http://localhost:5000/api/ngo-donations/${profile.ngoName || ngoName}`),
-        axios.get(`http://localhost:5000/api/ngo-profile/${ngoId}`)
+        axios.get(`${API_URL}/api/ngo/donations?ngoName=${profile.ngoName || ngoName}${currentTab === 'sameCity' ? '&sameCity=true&city=' + city : ''}`),
+        axios.get(`${API_URL}/api/ngo-donations/${profile.ngoName || ngoName}`),
+        axios.get(`${API_URL}/api/ngo-profile/${ngoId}`)
       ]);
       setDonations(donationsRes.data);
       setManagedDonations(managedRes.data);
@@ -96,7 +98,7 @@ const NGODashboard = () => {
   const updateProfile = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/ngo-profile', { ...profile, ngoId });
+      await axios.post(`${API_URL}/api/ngo-profile`, { ...profile, ngoId });
       alert('Profile updated!');
     } catch (err) {
       alert('Failed to update profile');
@@ -110,7 +112,7 @@ const NGODashboard = () => {
 
   const handleAccept = async () => {
     try {
-      await axios.post(`http://localhost:5000/api/donations/${acceptModal.id}/accept`, {
+      await axios.post(`${API_URL}/api/donations/${acceptModal.id}/accept`, {
         requestedServings: quantity,
         ngoName: profile.ngoName || ngoName
       });
@@ -124,7 +126,7 @@ const NGODashboard = () => {
 
   const handleReject = async (donationId) => {
     try {
-      await axios.post(`http://localhost:5000/api/donations/${donationId}/reject`, {
+      await axios.post(`${API_URL}/api/donations/${donationId}/reject`, {
         ngoName: profile.ngoName
       });
       fetchData();
@@ -136,7 +138,7 @@ const NGODashboard = () => {
   const deleteManagedRecord = async (id) => {
     if (!confirm('Are you sure you want to cancel this acceptance? The quantity will be restored to the donor.')) return;
     try {
-      await axios.delete(`http://localhost:5000/api/donation-acceptances/${id}`);
+      await axios.delete(`${API_URL}/api/donation-acceptances/${id}`);
       fetchData();
     } catch (err) {
       alert('Failed to delete');

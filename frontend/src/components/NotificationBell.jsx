@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import API_URL from '../api/config';
+
 import { Bell, X, Info, CheckCircle, AlertTriangle, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const socket = io(`${API_URL}`);
 
 const NotificationBell = () => {
     const [notifications, setNotifications] = useState([]);
@@ -31,7 +33,7 @@ const NotificationBell = () => {
 
     const fetchNotifications = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/notifications');
+            const res = await axios.get(`${API_URL}/api/notifications`);
             setNotifications(res.data);
             setUnreadCount(res.data.filter(n => !n.isRead).length);
         } catch (err) {
@@ -42,7 +44,7 @@ const NotificationBell = () => {
     const markAsRead = async () => {
         if (unreadCount === 0) return;
         try {
-            await axios.post('http://localhost:5000/api/notifications/mark-read');
+            await axios.post(`${API_URL}/api/notifications/mark-read`);
             setUnreadCount(0);
             setNotifications(prev => prev.map(n => ({ ...n, isRead: 1 })));
         } catch (err) {

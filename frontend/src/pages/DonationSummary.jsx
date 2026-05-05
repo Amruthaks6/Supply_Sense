@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import API_URL from '../api/config';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useDonations } from '../context/DonationContext';
@@ -20,7 +22,7 @@ const DonationSummary = () => {
 
   const fetchNgoProfile = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/ngo-profile/${user.id}`);
+      const res = await axios.get(`${API_URL}/api/ngo-profile/${user.id}`);
       if (res.data.location) {
         const parts = res.data.location.split(',');
         if (parts.length === 2) {
@@ -32,7 +34,7 @@ const DonationSummary = () => {
 
   const fetchDonation = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/donations/${id}`);
+      const res = await axios.get(`${API_URL}/api/donations/${id}`);
       setDonation(res.data);
     } catch (err) {
       console.error(err);
@@ -43,7 +45,7 @@ const DonationSummary = () => {
 
   const updateStatus = async (newStatus, extras = {}) => {
     try {
-      await axios.post(`http://localhost:5000/api/donations/${id}/confirm`, { 
+      await axios.post(`${API_URL}/api/donations/${id}/confirm`, { 
         status: newStatus,
         ...extras
       });

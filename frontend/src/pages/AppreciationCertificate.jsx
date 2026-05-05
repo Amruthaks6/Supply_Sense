@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import API_URL from '../api/config';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -15,7 +17,7 @@ const AppreciationCertificate = () => {
   useEffect(() => {
     const fetchDonation = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/donations/${id}`);
+        const res = await axios.get(`${API_URL}/api/donations/${id}`);
         setDonation(res.data);
       } catch (err) {
         console.error(err);

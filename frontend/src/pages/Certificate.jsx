@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import API_URL from '../api/config';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { Award, Download, ArrowLeft, Heart, ShieldCheck, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -16,7 +18,7 @@ const Certificate = () => {
         const fetchDetails = async () => {
             try {
                 // Changed from donation-summary to donations to match backend
-                const res = await axios.get(`http://localhost:5000/api/donations/${id}`);
+                const res = await axios.get(`${API_URL}/api/donations/${id}`);
                 const data = res.data;
                 
                 // Parse acceptedBy if it comes as a string from DB

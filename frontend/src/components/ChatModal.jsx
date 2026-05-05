@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import API_URL from '../api/config';
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, MessageCircle, User, Phone } from 'lucide-react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 
-const socket = io('http://localhost:5000');
+const socket = io(`${API_URL}`);
 
 const ChatModal = ({ isOpen, onClose, donationId, senderName, receiverName, receiverPhone, foodName }) => {
   const [messages, setMessages] = useState([]);
@@ -24,7 +26,7 @@ const ChatModal = ({ isOpen, onClose, donationId, senderName, receiverName, rece
     // Fetch history
     const fetchHistory = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/messages/${donationId}`, {
+        const res = await axios.get(`${API_URL}/api/messages/${donationId}`, {
           params: { sender: senderName, receiver: receiverName }
         });
         setMessages(res.data);

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import API_URL from '../api/config';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, MapPin, Clock, User, Package, MessageCircle, Check, AlertCircle, CheckCircle2, Phone } from 'lucide-react';
@@ -19,7 +21,7 @@ const DonationDetails = () => {
   useEffect(() => {
     const fetchDonation = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/donations/${id}`);
+        const response = await axios.get(`${API_URL}/api/donations/${id}`);
         setDonation(response.data);
         // Default to max available or 1
         const rem = (response.data.remainingQuantity !== undefined && response.data.remainingQuantity !== null) ? response.data.remainingQuantity : response.data.availableServings;
@@ -60,7 +62,7 @@ const DonationDetails = () => {
       const user = JSON.parse(localStorage.getItem('supply_sense_user') || '{}');
       const ngoName = user.name || 'NGO Partner';
 
-      const response = await axios.post(`http://localhost:5000/api/donations/${id}/accept`, {
+      const response = await axios.post(`${API_URL}/api/donations/${id}/accept`, {
         requestedServings,
         ngoName
       });
