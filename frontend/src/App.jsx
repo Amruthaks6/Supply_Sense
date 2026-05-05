@@ -14,8 +14,10 @@ import DonationStatusPanel from './components/DonationStatusPanel';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function App() {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID_HERE";
+
   return (
-    <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID_HERE">
+    <GoogleOAuthProvider clientId={clientId}>
       <Router>
         <DonationProvider>
           <div className="App">

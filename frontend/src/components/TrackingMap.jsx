@@ -3,6 +3,8 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { io } from 'socket.io-client';
+import axios from 'axios';
+import API_URL from '../api/config';
 
 // Custom Markers
 const donorIcon = new L.Icon({
@@ -17,7 +19,7 @@ const ngoIcon = new L.Icon({
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 });
 
-const socket = io('http://localhost:5000');
+const socket = io(API_URL);
 
 const MapRefresher = ({ lat, lng, ngoLat, ngoLng }) => {
   const map = useMap();
@@ -48,7 +50,41 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 const TrackingMap = ({ donationId, initialLat, initialLng, ngoLat, ngoLng, isDonor }) => {
   const [pos, setPos] = useState([initialLat || 12.9716, initialLng || 77.5946]);
   const [isTracking, setIsTracking] = useState(false);
-  const distance = calculateDistance(pos[0], pos[1], ngoLat, ngoLng);
+  
+  const [routePositions, setRoutePositions] = useState([]);
+  const [drivingDistance, setDrivingDistance] = useState(null);
+  const [drivingDuration, setDrivingDuration] = useState(null);
+
+  const straightDistance = calculateDistance(pos[0], pos[1], ngoLat, ngoLng);
+
+  useEffect(() => {
+    if (pos[0] && pos[1] && ngoLat && ngoLng) {
+      const fetchRoute = async () => {
+        try {
+          const res = await axios.get(`https://router.project-osrm.org/route/v1/driving/${pos[1]},${pos[0]};${ngoLng},${ngoLat}?overview=full&geometries=geojson`);
+          if (res.data.routes && res.data.routes[0]) {
+            const route = res.data.routes[0];
+            const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+            setRoutePositions(coords);
+            setDrivingDistance((route.distance / 1000).toFixed(2));
+            setDrivingDuration(Math.ceil(route.duration / 60));
+          }
+        } catch (error) {
+          console.error("Error fetching route from OSRM", error);
+        }
+      };
+      
+      fetchRoute();
+      
+      let intervalId;
+      if (isTracking) {
+        intervalId = setInterval(fetchRoute, 30000);
+      }
+      return () => {
+        if (intervalId) clearInterval(intervalId);
+      };
+    }
+  }, [pos[0], pos[1], ngoLat, ngoLng, isTracking]);
 
   useEffect(() => {
     socket.on('location-updated', (data) => {
@@ -89,9 +125,19 @@ const TrackingMap = ({ donationId, initialLat, initialLng, ngoLat, ngoLng, isDon
   return (
     <div className="h-full w-full relative">
       {/* Distance Overlay */}
-      <div className="absolute top-4 right-4 z-[1000] bg-white/90 backdrop-blur px-4 py-2 rounded-xl shadow-lg border border-emerald-100">
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Live Distance</p>
-        <p className="text-lg font-black text-emerald-600">{distance ? `${distance} km` : 'Calculating...'}</p>
+      <div className="absolute top-4 right-4 z-[1000] bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl border border-blue-100 flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+           <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+           <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Live Route</p>
+        </div>
+        <div className="flex flex-col">
+           <p className="text-2xl font-black text-blue-600">
+             {drivingDuration ? `${drivingDuration} min` : 'Calculating...'}
+           </p>
+           <p className="text-sm font-semibold text-gray-400">
+             {drivingDistance ? `${drivingDistance} km` : (straightDistance ? `${straightDistance} km (straight line)` : '...')}
+           </p>
+        </div>
       </div>
 
       {/* Tracking Controls */}
@@ -125,7 +171,24 @@ const TrackingMap = ({ donationId, initialLat, initialLng, ngoLat, ngoLng, isDon
             <Marker position={[ngoLat, ngoLng]} icon={ngoIcon}>
               <Popup>NGO Office</Popup>
             </Marker>
-            <Polyline positions={[pos, [ngoLat, ngoLng]]} color="#10b981" weight={4} dashArray="10, 10" opacity={0.6} />
+            {routePositions.length > 0 ? (
+              <Polyline 
+                positions={routePositions} 
+                color="#3b82f6" 
+                weight={6} 
+                opacity={0.8} 
+                lineCap="round" 
+                lineJoin="round" 
+              />
+            ) : (
+              <Polyline 
+                positions={[pos, [ngoLat, ngoLng]]} 
+                color="#94a3b8" 
+                weight={4} 
+                dashArray="10, 10" 
+                opacity={0.6} 
+              />
+            )}
           </>
         )}
 
