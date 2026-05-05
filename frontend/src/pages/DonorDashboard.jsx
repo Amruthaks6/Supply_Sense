@@ -179,8 +179,12 @@ const DonorDashboard = () => {
       if (coords.lat) payload.append('lat', coords.lat);
       if (coords.lng) payload.append('lng', coords.lng);
 
+      const token = localStorage.getItem('supply_sense_token');
       await axios.post(`${API_URL}/api/donations`, payload, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
       });
 
       setSuccessMsg('Donation created! NGOs can now see it.');
@@ -192,7 +196,8 @@ const DonorDashboard = () => {
         if (proofRef.current)  proofRef.current.value  = '';
       }, 2000);
     } catch (err) {
-      alert('Failed to create donation. Check your connection.');
+      const msg = err.response?.data?.error || err.message || 'Unknown error';
+      alert(`Failed to create donation: ${msg}`);
     } finally { setIsSubmitting(false); }
   };
 
