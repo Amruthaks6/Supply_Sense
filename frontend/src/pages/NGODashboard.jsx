@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShieldCheck, LogOut, Search, Map, CheckCircle2, 
   User, MapPin, Users, Package, Clock, MessageSquare,
-  Edit2, Trash2, Check, X, ChevronRight, Plus, Minus, Phone
+  Edit2, Trash2, Check, X, ChevronRight, Plus, Minus, Phone,
+  Menu, LayoutGrid, ListChecks, MessageCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -145,40 +146,66 @@ const NGODashboard = () => {
     }
   };
 
+  const TABS = [
+    { id: 'browse',   label: 'Browse',   Icon: LayoutGrid },
+    { id: 'sameCity', label: 'My City',   Icon: MapPin },
+    { id: 'managed',  label: 'Managed',  Icon: ListChecks },
+    { id: 'messages', label: 'Messages', Icon: MessageCircle },
+    { id: 'profile',  label: 'Profile',  Icon: User },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans pb-16 md:pb-0">
       {/* Navbar */}
       <nav className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-20 items-center">
+          <div className="flex justify-between h-16 md:h-20 items-center">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-md">
-                <ShieldCheck className="h-6 w-6 text-white" />
+              <div className="w-9 h-9 md:w-10 md:h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-md">
+                <ShieldCheck className="h-5 w-5 md:h-6 md:w-6 text-white" />
               </div>
-              <span className="font-bold text-xl text-gray-900">Supply<span className="text-emerald-600">Sense</span></span>
-              <span className="ml-4 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold uppercase rounded-full border border-emerald-100 hidden sm:block">NGO Dashboard</span>
+              <span className="font-bold text-lg md:text-xl text-gray-900">Supply<span className="text-emerald-600">Sense</span></span>
+              <span className="ml-2 px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase rounded-full border border-emerald-100 hidden sm:block">NGO Dashboard</span>
             </div>
             
-            <div className="flex items-center gap-6">
-              <div className="hidden md:flex gap-4">
-                {['browse', 'sameCity', 'managed', 'messages', 'profile'].map(tab => (
+            <div className="flex items-center gap-3">
+              {/* Desktop tabs */}
+              <div className="hidden md:flex gap-2">
+                {TABS.map(({ id, label }) => (
                   <button 
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === tab ? 'bg-emerald-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}
+                    key={id}
+                    onClick={() => setActiveTab(id)}
+                    className={`px-3 py-2 rounded-lg font-bold text-sm transition-all ${activeTab === id ? 'bg-emerald-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}
                   >
-                    {tab === 'sameCity' ? 'Same City' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    {label}
                   </button>
                 ))}
               </div>
               <NotificationBell />
-              <button onClick={handleLogout} className="text-gray-500 hover:text-red-500 font-medium transition-colors flex items-center gap-2">
-                <LogOut className="w-5 h-5" /> <span className="hidden sm:inline">Logout</span>
+              <button onClick={handleLogout} className="text-gray-500 hover:text-red-500 font-medium transition-colors flex items-center gap-1 text-sm">
+                <LogOut className="w-4 h-4 md:w-5 md:h-5" /> <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-2xl flex">
+        {TABS.map(({ id, label, Icon }) => (
+          <button
+            key={id}
+            onClick={() => setActiveTab(id)}
+            className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors ${
+              activeTab === id ? 'text-emerald-600' : 'text-gray-400'
+            }`}
+          >
+            <Icon size={20} />
+            <span className={`text-[10px] font-bold ${activeTab === id ? 'text-emerald-600' : 'text-gray-400'}`}>{label}</span>
+            {activeTab === id && <span className="w-1 h-1 bg-emerald-500 rounded-full" />}
+          </button>
+        ))}
+      </div>
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         {(activeTab === 'browse' || activeTab === 'sameCity') && (

@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart, LogOut, PackagePlus, History, Settings, X,
   Loader2, CheckCircle2, UploadCloud, MessageCircle, Award,
-  Package, Clock, MapPin, Send, ChevronRight, LayoutList, Phone
+  Package, Clock, MapPin, Send, ChevronRight, LayoutList, Phone,
+  LayoutDashboard, Users2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -203,46 +204,70 @@ const DonorDashboard = () => {
     }, 2000);
   };
 
+  const DONOR_TABS = [
+    { id: 'donations',    label: 'Donations',   Icon: LayoutDashboard },
+    { id: 'ngos',         label: 'NGOs',         Icon: Users2 },
+    { id: 'certificates', label: 'Certificates', Icon: Award },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans pb-20">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans pb-16 md:pb-0">
 
       {/* Navbar */}
       <nav className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-20 items-center">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex justify-between h-14 md:h-20 items-center">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center shadow-md">
-              <Heart className="h-6 w-6 text-white" fill="currentColor" />
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-primary-500 rounded-xl flex items-center justify-center shadow-md">
+              <Heart className="h-5 w-5 md:h-6 md:w-6 text-white" fill="currentColor" />
             </div>
-            <span className="font-bold text-xl text-gray-900">Supply<span className="text-primary-600">Sense</span></span>
-            <span className="ml-3 px-3 py-1 bg-primary-50 text-primary-700 text-xs font-bold uppercase rounded-full border border-primary-100 hidden sm:block">Donor Portal</span>
+            <span className="font-bold text-base md:text-xl text-gray-900">Supply<span className="text-primary-600">Sense</span></span>
+            <span className="ml-2 px-2 py-0.5 bg-primary-50 text-primary-700 text-[10px] font-bold uppercase rounded-full border border-primary-100 hidden sm:block">Donor Portal</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 md:gap-2">
+            {/* Desktop tabs */}
             <div className="hidden md:flex gap-2 mr-4">
               <button onClick={() => setActiveTab('donations')} className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === 'donations' ? 'bg-primary-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}>My Donations</button>
               <button onClick={() => setActiveTab('ngos')} className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === 'ngos' ? 'bg-primary-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}>Nearby NGOs</button>
               <button onClick={() => setActiveTab('certificates')} className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${activeTab === 'certificates' ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}>Certificates</button>
             </div>
-            {isAnonymous && <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full hidden sm:block">Anonymous Session</span>}
+            {isAnonymous && <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full hidden sm:block">Anon</span>}
             <NotificationBell />
             <motion.button
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               onClick={openPanel}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-50 text-primary-700 border border-primary-100 font-bold text-sm hover:bg-primary-100 transition-colors"
+              className="flex items-center gap-1 px-2 md:px-4 py-1.5 md:py-2 rounded-xl bg-primary-50 text-primary-700 border border-primary-100 font-bold text-xs md:text-sm hover:bg-primary-100 transition-colors"
             >
               <LayoutList className="w-4 h-4" />
-              <span className="hidden sm:inline">Status Panel</span>
+              <span className="hidden sm:inline">Status</span>
               {stats.total > 0 && (
-                <span className="bg-primary-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="bg-primary-600 text-white text-xs font-bold rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center">
                   {stats.total}
                 </span>
               )}
             </motion.button>
-            <button onClick={handleLogout} className="text-gray-500 hover:text-red-500 flex items-center gap-2 font-medium transition-colors">
-              <LogOut className="w-5 h-5" /><span className="hidden sm:inline">Logout</span>
+            <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 flex items-center gap-1 font-medium transition-colors">
+              <LogOut className="w-4 h-4 md:w-5 md:h-5" />
             </button>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-2xl flex">
+        {DONOR_TABS.map(({ id, label, Icon }) => (
+          <button
+            key={id}
+            onClick={() => setActiveTab(id)}
+            className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors ${
+              activeTab === id ? 'text-primary-600' : 'text-gray-400'
+            }`}
+          >
+            <Icon size={20} />
+            <span className={`text-[10px] font-bold ${activeTab === id ? 'text-primary-600' : 'text-gray-400'}`}>{label}</span>
+            {activeTab === id && <span className="w-1 h-1 bg-primary-500 rounded-full" />}
+          </button>
+        ))}
+      </div>
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         <motion.div initial={{ opacity:0,y:20 }} animate={{ opacity:1,y:0 }} className="mb-8">

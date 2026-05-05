@@ -312,10 +312,11 @@ app.post('/api/donations', authenticateToken, authorizeRole('Donor'), multer({ s
     const donorPhone = phone || (req.user.isAnonymous ? null : req.user.phone);
     const userId = req.user.id;
 
+    const BASE_URL = process.env.BASE_URL || 'https://supply-sense-backend.onrender.com';
     let imageUrl = 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=600';
     let proofPhotoUrl = null;
-    if (req.files?.image) imageUrl = `http://localhost:5000/uploads/${req.files.image[0].filename}`;
-    if (req.files?.proofPhoto) proofPhotoUrl = `http://localhost:5000/uploads/${req.files.proofPhoto[0].filename}`;
+    if (req.files?.image) imageUrl = `${BASE_URL}/uploads/${req.files.image[0].filename}`;
+    if (req.files?.proofPhoto) proofPhotoUrl = `${BASE_URL}/uploads/${req.files.proofPhoto[0].filename}`;
 
     try {
         const [result] = await pool.query(`INSERT INTO donations (foodName, category, availableServings, totalQuantity, remainingQuantity, quantityUnit, expiryDate, imageUrl, proofPhotoUrl, pickupLocation, currentLat, currentLng, donorName, donorPhone, isAnonymous, status, acceptedBy, userId, city) 
