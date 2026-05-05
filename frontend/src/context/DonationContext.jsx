@@ -94,7 +94,8 @@ export const DonationProvider = ({ children }) => {
   const fetchDonations = useCallback(async () => {
     // Read session state fresh on every call
     const isAnon = !!sessionStorage.getItem('supply_sense_anon_id');
-    const dName  = isAnon ? '' : (localStorage.getItem('supply_sense_name') || 'Registered Donor');
+    const user = JSON.parse(localStorage.getItem('supply_sense_user') || '{}');
+    const dName  = isAnon ? '' : (user.name || localStorage.getItem('supply_sense_name') || 'Registered Donor');
     try {
       const params = isAnon ? { isAnonymous: 'true' } : { donorName: dName };
       const { data } = await axios.get(`${API_URL}/api/my-donations`, { params });

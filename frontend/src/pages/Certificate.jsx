@@ -166,7 +166,7 @@ const Certificate = () => {
                     </div>
 
                     <p className="text-lg text-[#374151] leading-relaxed max-w-2xl mx-auto mb-12">
-                        In recognition of your generous contribution of <span className="font-bold text-[#16a34a]">{donation.foodName}</span> ({donation.availableServings} servings) to <span className="font-bold text-[#059669]">{donation.acceptedBy?.[0]?.ngoName || 'our NGO partners'}</span>. Your act of kindness has helped combat food waste and provided nourishment to those in need.
+                        In recognition of your generous contribution of <span className="font-bold text-[#16a34a]">{donation.foodName}</span> ({donation.totalQuantity || donation.availableServings} servings) to <span className="font-bold text-[#059669]">{donation.acceptedBy?.[0]?.ngoName || 'our NGO partners'}</span>. Your act of kindness has helped combat food waste and provided nourishment to those in need.
                     </p>
 
                     {/* Seal and Signatures */}

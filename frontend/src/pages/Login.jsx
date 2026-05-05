@@ -103,6 +103,7 @@ const Login = () => {
     try {
       const res = await axios.post(`${API_URL}/api/auth/anonymous`);
       login(res.data.user, res.data.token);
+      sessionStorage.setItem('supply_sense_anon_id', 'true');
       navigate('/donor-dashboard');
     } catch (err) {
       alert('Failed to start anonymous session');
